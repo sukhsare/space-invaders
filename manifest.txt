@@ -1,0 +1,174 @@
+Space Invaders Game
+
+Quick overview of design Patterns implemented:
+
+- Factory Pattern:
+Used in `BlockFactory` to create different types of game blocks (`ShipBlock`, `AlienBlock`, `BulletBlock`, `ShieldBlock`). Simplifying the process of creating game objects.
+
+- Chain of Responsibility:
+Applied in both collision handling and event handling. 
+For collision handling, handlers like `BulletAlienHandler` and `AlienMovementHandler` are chained. When a collision event occurs, it's passed through each handler to process specific types of collisions (e.g., bullet-alien or bullet-shield). 
+For event handling, the chain includes `ScoreUpdateHandler` and `GameOverHandler`, ensuring that each event type is processed appropriately.
+
+- Open/Closed Principle:
+The system is open for extension but closed for modification. New block types or handlers can be added without modifying existing code.
+E.g. if you want to add a new block type like `BonusBlock`, you could create a new class for `BonusBlock` and add it to `BlockFactory` without altering the existing block types or the game logic. 
+Also, if a new type of collision needs to be handled, you can create a new handler (e.g., `BulletBonusHandler`) and add it to the chain without modifying the existing handlers.
+
+- Single Responsibility Principle:
+Each class has a single responsibility. For example, `InputHandler` manages user input.
+
+
+File descriptions and OO Patterns used:
+
+"collisions" folder/package:
+
+- "CollisionEvent.java":
+- Purpose: Represents a collision event between two game objects, storing details like objects involved and the type of collision
+- Patterns:
+- Simple Event Pattern: This class encapsulates collision details and is passed to handlers for processing.
+
+- "CollisionType.java":
+- Purpose: An enum defining different collision types, like bullet-alien and bullet-shield.
+- Patterns:
+- Enum: Enumerates the types of collisions that can happen in the game.
+
+- "CollisionUtil.java":
+- Purpose: Provides utility methods for detecting collisions (done using axis-aligned bounding boxes)
+- Patterns:
+- Utility Class: A helper class for collision detection.
+
+"factory" folder/package:
+
+- "BlockFactory.java":
+- Purpose: Factory class that creates different block types (ship, alien, shield, bullet) based on the block type.
+- Patterns:
+- Factory Pattern: Simplifies creating game objects by centralising them in one place. Allows the easy addition of new block types.
+
+- "BlockType.java":
+- Purpose: An enum defining the types of blocks in the game (ship, alien, shield, bullet).
+- Patterns:
+- Enum: Defines the different block types used by the game.
+
+
+"handlers" folder/package:
+
+- "AlienMovementHandler.java":
+- Purpose: Handles the aliens' movement, including reversing direction when they hit the screen boundary.
+- Patterns:
+- Chain of Responsibility Pattern: This class is a part of the collision handler chain and is used for the alien movement collision type.
+
+- "BulletAlienHandler.java":
+- Purpose: Handles collisions between bullets and aliens, updating the game state (e.g., increasing score, removing aliens).
+- Patterns:
+- Chain of Responsibility Pattern: Handles bullet-alien collisions in the collision handler chain.
+
+- "BulletShieldHandler.java":
+- Purpose: Handles collisions between bullets and shields, reducing shield durability or marking them as destroyed when needed.
+- Patterns:
+- Chain of Responsibility Pattern: Part of the collision handler chain, handling bullet-shield collisions.
+
+- "Handler.java":
+- Purpose: The base class for collision handlers. It defines the interface for handling events and setting up the next handler in the chain.
+- Patterns:
+- Chain of Responsibility Pattern: Establishes a 'framework' for handling collision events in a chain.
+
+- "HandlerChain.java":
+- Purpose: Manages the chain of collision handlers, processing collision events sequentially.
+- Patterns:
+- Chain of Responsibility Pattern: Links multiple handlers, processing events in a sequence to handle different types of collisions.
+
+- "InputHandler.java":
+- Purpose: Handles user input (left/right movement and firing) and passes it to the game for processing.
+- Patterns:
+- Single Responsibility Principle: This class manages user input and delegates actions to the game.
+
+
+
+"rendering" folder/package:
+
+- "Renderable.java":
+- Purpose: An interface, requires classes to implement methods for rendering and updating game objects.
+- Patterns:
+- Interface: defines the required methods for all renderable objects, making sure they can be both drawn and updated.
+
+- "Renderer.java":
+- Purpose: Handles rendering of all game objects to the screen.
+- Patterns:
+- Single Responsibility Principle: Manages rendering tasks without involving game logic or input handling.
+
+
+
+"events" folder/package:
+
+- "EventHandler.java":
+- Purpose: Abstract class for event handling, used in a chain of responsibility for handling game events like score updates or game over.
+- Patterns:
+- Chain of Responsibility Pattern: manages game events in a chain, 'assigning' tasks to appropriate handlers like `ScoreUpdateHandler` and `GameOverHandler`.
+
+- "GameEvent.java":
+- Purpose: Represents a game event, such as a score update or game over. Used in the event handling chain.
+- Patterns:
+- Simple Event Pattern: Encapsulates data (of events) and triggers actions accordingly.
+
+- "ScoreUpdateHandler.java":
+- Purpose: Handles score updates, triggered when a player destroys an alien.
+- Patterns:
+- Chain of Responsibility Pattern: Part of the event handler chain, responsible for processing score updates.
+
+- "GameOverHandler.java":
+- Purpose: Handles the game over event, triggered when the game ends.
+- Patterns:
+- Chain of Responsibility Pattern: Part of the event handler chain, processing game over events.
+
+- "EventType.java":
+- Purpose: Enum defining different event types, like`GAME_OVER` and `SCORE_UPDATE`.
+- Patterns/Principles:
+- Enum: Enumerates the types of events in the game.
+
+
+
+"game" folder/package:
+
+- "Block.java":
+- Purpose: Base class for all game blocks like ships, aliens, bullets, and shields. Handles their position, size, and rendering behaviour.
+- Patterns:
+- Abstract Class: Provides common structure for all game blocks.
+- Single Responsibility Principle: Defines shared behaviour for all blocks.
+
+- "ShipBlock.java":
+- Purpose: Represents the player's ship. It handles movement/interactions within the game.
+- Patterns:
+- Single Responsibility Principle: Focuses only on the ship’s behaviour, not other game elements.
+
+- "AlienBlock.java":
+- Purpose: Represents the alien blocks in the game. It controls there movement and interactions with other objects.
+- Patterns:
+- Single Responsibility Principle: Handles alien behaviour.
+
+- "BulletBlock.java":
+- Purpose: Represents a bullet fired by the player. It moves upwards and checks for collisions with aliens or the screen boundary.
+- Patterns:
+- Single Responsibility Principle: Manages the bullets behavior.
+
+- "ShieldBlock.java":
+- Purpose: Represents shield blocks in the game. It decreases durability when hit by bullets and can be destroyed when durability reaches zero.
+- Patterns/Principles:
+- Single Responsibility Principle: Manages shield behaviour.
+
+- "GameState.java":
+- Purpose: A singleton that tracks the game state, including score, game-over status, and handles events.
+- Patterns:
+- Singleton Pattern: Ensures a single instance manages the game state.
+- Single Responsibility Principle: Manages score, events, and game-over status.
+
+- "ResourceManager.java":
+- Purpose: Loads and manages resources like images for the ship, aliens, and shields.
+- Patterns:
+- Utility Class: Manages image resources.
+
+- "SpaceInvaders.java":
+- Purpose: The main class that controls game flow, collision detection, and rendering. It handles the game loop and interactions between game objects.
+- Patterns:
+- Singleton Pattern: Ensures that there’s only one instance of the game running.
+- Chain of Responsibility Pattern: Uses the collision handler chain to process collisions.
